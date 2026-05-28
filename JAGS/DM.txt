@@ -1,0 +1,52 @@
+
+model {
+
+# Priors
+# alpha.lam <- log(mean.lambda)
+# mean.lambda ~ dunif(0, 100) # Initial site-specific abundance
+alpha.lam ~ dnorm(0,0.1)
+alpha.phi ~ dnorm(0,0.1) # Apparent survival (or omega)
+alpha.gamma ~ dnorm(0,0.1) # Per-capita recruitment rate
+alpha.p ~ dnorm(0,0.1) # Detection probability
+beta.lam ~ dnorm(0,0.1) # Coefs of 5 covariates
+beta.lam.square ~ dnorm(0,0.1)
+beta.phi ~ dnorm(0,0.1)
+beta.phi.square ~ dnorm(0,0.1)
+beta.gamma ~ dnorm(0,0.1)
+beta.gamma.square ~ dnorm(0,0.1)
+beta.p ~ dnorm(0,0.1)
+beta.p.square ~ dnorm(0,0.1)
+
+# Likelihood
+for(i in 1:nsites){
+
+  # State process: initial condition
+  N[i,1] ~ dpois(lambda[i])
+
+  log(lambda[i]) <- alpha.lam + beta.lam * x[i] + beta.lam.square * x[i] * x[i]
+  logit(phi[i]) <- alpha.phi + beta.phi*x[i] + beta.phi.square * x[i] * x[i]
+  log(gamma[i]) <- alpha.gamma + beta.gamma*x[i] + beta.gamma.square * x[i] * x[i]
+
+  # State process: transition model
+  for(t in 1:(nyears-1)){
+    S[i,t+1] ~ dbin(phi[i], N[i,t])
+    R[i,t+1] ~ dpois(gamma[i]) # 'absolute' recruitment = 'constant'
+    # tmp[i,t] <- N[i,t] * gamma[i] # per-capita recruitment = 'autoreg'
+    # R[i,t+1] ~ dpois(tmp[i,t]) # per-capita recruitment = 'autoreg'
+    N[i,t+1] <- S[i,t+1] + R[i,t+1]
+  }
+
+# Observation process
+ for(t in 1:nyears){
+  for(j in 1:nsurveys){
+  logit(p[i,t,j]) <- alpha.p + beta.p*x[i] + beta.p.square*x[i]* x[i]
+  C[i,t,j] ~ dbin(p[i,t,j], N[i,t])
+  }
+ }
+}
+
+# Derived quantities
+mean.phi <- ilogit(alpha.phi)
+mean.gamma <- exp(alpha.gamma)
+mean.p <- ilogit(alpha.p)
+}
