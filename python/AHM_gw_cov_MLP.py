@@ -1,7 +1,7 @@
 import rdata
 import numpy as np
 import torch
-from torch.utils.data import random_split, DataLoader, TensorDataset
+from torch.utils.data import DataLoader, TensorDataset, Subset
 from torch import nn
 from torch.distributions import Binomial, Poisson
 import matplotlib.pyplot as plt
@@ -54,19 +54,25 @@ x_p = np.concatenate(
 x_phi_gamma = np.ones((y.shape[0], 1), dtype=np.float32)
 
 # Create a TensorDataset for training
-dataset = TensorDataset(torch.as_tensor(x_route), torch.as_tensor(x_p), torch.as_tensor(y), torch.as_tensor(x_phi_gamma))
+dataset = TensorDataset(torch.as_tensor(x_route), 
+                        torch.as_tensor(x_p), 
+                        torch.as_tensor(y),
+                        torch.as_tensor(x_phi_gamma))
 
-# Create training and validation splits
-val_frac = 0.2
-n_total = len(dataset)
-n_val = int(val_frac * n_total)
-n_train = n_total - n_val
+# Load shared train / validation / test split 
+split_df = rdata.read_rds("R/AHM_data/gw_site_split_seed42.rds")
 
-train_dataset, val_dataset = random_split(
-    dataset,
-    [n_train, n_val],
-    generator=torch.Generator().manual_seed(42)
-)
+train_idx = split_df.loc[split_df["split"] == "train", "site_python"].to_numpy(dtype=int)
+val_idx = split_df.loc[split_df["split"] == "val", "site_python"].to_numpy(dtype=int)
+test_idx = split_df.loc[split_df["split"] == "test", "site_python"].to_numpy(dtype=int)
+
+train_dataset = Subset(dataset, train_idx)
+val_dataset = Subset(dataset, val_idx)
+test_dataset = Subset(dataset, test_idx)
+
+print("Train sites:", len(train_dataset))
+print("Validation sites:", len(val_dataset))
+print("Test sites:", len(test_dataset))
 
 train_loader = DataLoader(
     train_dataset,

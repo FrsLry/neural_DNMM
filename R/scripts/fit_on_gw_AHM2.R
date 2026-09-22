@@ -2,12 +2,39 @@
 library(jagsUI)
 library(AHMbook)
 
-source(file="AHM_data/AHM2_02.02.R")
+source(file = "AHM_data/AHM2_02.02.R")
+
+# Load shared train / validation / test split
+split_df <- readRDS("AHM_data/gw_site_split_seed42.rds")
+
+train_idx <- split_df$site_R[split_df$split == "train"]
+val_idx   <- split_df$site_R[split_df$split == "val"]
+test_idx  <- split_df$site_R[split_df$split == "test"]
+
+# Keep only training sites for Bayesian model fitting
+C <- C[train_idx, , , drop = FALSE]
+DATE <- DATE[train_idx, , , drop = FALSE]
+INT <- INT[train_idx, , , drop = FALSE]
+elev <- elev[train_idx]
+forest <- forest[train_idx]
+route_length <- peckers$route.length[train_idx]
+
+cat("Train sites:", length(train_idx), "\n")
+cat("Validation sites:", length(val_idx), "\n")
+cat("Test sites:", length(test_idx), "\n")
 
 # Bundle data
-str(bdata <- list(C = C, nsites = dim(C)[1], nsurveys = dim(C)[2],
-                  nyears = dim(C)[3], elev = as.vector(elev),forest = as.vector(forest),
-                  DATE = DATE, length = peckers$route.length, INT = INT)) # note length added
+str(bdata <- list(
+  C = C,
+  nsites = dim(C)[1],
+  nsurveys = dim(C)[2],
+  nyears = dim(C)[3],
+  elev = as.vector(elev),
+  forest = as.vector(forest),
+  DATE = DATE,
+  length = route_length,
+  INT = INT
+))
 
 # Specify model in JAGS language
 cat(file = "../JAGS/DM_gw.txt","
