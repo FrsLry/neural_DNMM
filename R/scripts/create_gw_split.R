@@ -1,7 +1,7 @@
 ### Create train / validation / test split for the Swiss Green Woodpecker data
 ### This script should be run once, before fitting the neural and Bayesian models.
 
-set.seed(42)
+set.seed(347)
 
 ### Load Swiss Green Woodpecker data
 source(file = "AHM_data/AHM2_02.02.R")
@@ -51,4 +51,4 @@ stopifnot(sum(split_df$split == "train") +
 print(table(split_df$split))
 
 ### Save split
-saveRDS(split_df, file = "AHM_data/gw_site_split_seed42.rds")
+saveRDS(split_df, file = "AHM_data/gw_site_split_seed347.rds")

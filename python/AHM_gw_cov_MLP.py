@@ -60,7 +60,7 @@ dataset = TensorDataset(torch.as_tensor(x_route),
                         torch.as_tensor(x_phi_gamma))
 
 # Load shared train / validation / test split 
-split_df = rdata.read_rds("R/AHM_data/gw_site_split_seed42.rds")
+split_df = rdata.read_rds("R/AHM_data/gw_site_split_seed347.rds")
 
 train_idx = split_df.loc[split_df["split"] == "train", "site_python"].to_numpy(dtype=int)
 val_idx = split_df.loc[split_df["split"] == "val", "site_python"].to_numpy(dtype=int)

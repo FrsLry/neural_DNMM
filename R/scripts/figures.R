@@ -1079,7 +1079,7 @@ class Net(nn.Module):
         return phi, gamma, lambd, p
 ", nt, k_p, x_route_dim))
 
-model <- torch$load("../python/trained_models/swiss_gw_cov_MLP.pth", weights_only = FALSE, map_location = "cpu")
+model <- torch$load("../python/trained_models/swiss_gw_cov_MLP_seed347.pth", weights_only = FALSE, map_location = "cpu")
 
 model$eval()
 
@@ -1194,7 +1194,7 @@ p_nn_int <- predict_p_nn(
 ## JAGS ######
 library(AHMbook)
 
-out <- readRDS("AHM_data/jagsOut_gw_covariates.rds")
+out <- readRDS("AHM_data/jagsOut_gw_covariates_noIntens_seed347.rds")
 
 inv_logit <- function(x) 1 / (1 + exp(-x))
 

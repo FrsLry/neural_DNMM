@@ -5,7 +5,7 @@ library(AHMbook)
 source(file = "AHM_data/AHM2_02.02.R")
 
 # Load shared train / validation / test split
-split_df <- readRDS("AHM_data/gw_site_split_seed42.rds")
+split_df <- readRDS("AHM_data/gw_site_split_seed347.rds")
 
 train_idx <- split_df$site_R[split_df$split == "train"]
 val_idx   <- split_df$site_R[split_df$split == "val"]
@@ -121,7 +121,7 @@ t_end <- Sys.time()
 
 print(t_end - t_start)
 
-# saveRDS(out, "AHM_data/jagsOut_gw_covariates_noIntens.rds")
+# saveRDS(out, "AHM_data/jagsOut_gw_covariates_noIntens_seed347.rds")
 
 # par(mfrow = c(2,3))  #  ~~~ replace with 'layout' argument
 # traceplot(out, layout=c(2,3))
