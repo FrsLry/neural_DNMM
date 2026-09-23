@@ -1,2 +1,2 @@
-/R/AHM_data/jagsOut_gw_covariates.rds filter=lfs diff=lfs merge=lfs -text
+/R/AHM_data/jagsOut_gw_covariates* filter=lfs diff=lfs merge=lfs -text
 /simulated_data/g_-1.805_-1.680_0.497__l_1.752_0.525_-0.775__p_-2.340_-2.189_-1.626__s_1.922_-1.277_-0.642/jagsOut.rds filter=lfs diff=lfs merge=lfs -text
