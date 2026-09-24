@@ -1037,6 +1037,13 @@ x_phi_gamma <- matrix(1, nrow = dim(y)[1], ncol = 1)
 x_route_dim <- as.integer(ncol(x_route))
 k_p <- as.integer(dim(x_p)[4])
 
+# Load shared train / validation / test split
+split_df <- readRDS("AHM_data/gw_site_split_seed347.rds")
+
+train_idx <- split_df$site_R[split_df$split == "train"]
+val_idx   <- split_df$site_R[split_df$split == "val"]
+test_idx  <- split_df$site_R[split_df$split == "test"]
+
 py_run_string(sprintf("
 import torch
 import torch.nn as nn
@@ -1392,11 +1399,25 @@ dev.off()
 
 ## Estimate N, S, R
 # For NN
-x_route_t <- torch$tensor(x_route, dtype = torch$float32)
-x_p_t <- torch$tensor(x_p, dtype = torch$float32)
-x_phi_gamma_t <- torch$tensor(x_phi_gamma, dtype = torch$float32)
-y <- array(as.numeric(y), dim = dim(y))
-y_t <- torch$tensor(y, dtype = torch$float32)
+# Use training sites only, because the Bayesian model was fitted on training sites only
+
+x_route_train <- x_route[train_idx, , drop = FALSE]
+x_p_train <- x_p[train_idx, , , , drop = FALSE]
+x_phi_gamma_train <- x_phi_gamma[train_idx, , drop = FALSE]
+y_train <- y[train_idx, , , drop = FALSE]
+
+x_route_t <- torch$tensor(x_route_train, dtype = torch$float32)
+x_p_t <- torch$tensor(x_p_train, dtype = torch$float32)
+x_phi_gamma_t <- torch$tensor(x_phi_gamma_train, dtype = torch$float32)
+
+y_train <- array(as.numeric(y_train), dim = dim(y_train))
+y_t <- torch$tensor(y_train, dtype = torch$float32)
+
+# x_route_t <- torch$tensor(x_route, dtype = torch$float32)
+# x_p_t <- torch$tensor(x_p, dtype = torch$float32)
+# x_phi_gamma_t <- torch$tensor(x_phi_gamma, dtype = torch$float32)
+# y <- array(as.numeric(y), dim = dim(y))
+# y_t <- torch$tensor(y, dtype = torch$float32)
 
 with(torch$no_grad(), {
   pred <- model(x_route_t, x_p_t, x_phi_gamma_t)
@@ -1423,6 +1444,9 @@ R_nn = res[[3]]$detach()$cpu()$numpy()
 N_bayes <- out$mean$N
 S_bayes <- out$mean$S[,-1]
 R_bayes <- out$mean$R[,-1]
+
+cat("NN N dim:", dim(N_nn), "\n")
+cat("Bayesian N dim:", dim(N_bayes), "\n")
 
 df_compare <- bind_rows(
   data.frame(
@@ -1470,7 +1494,8 @@ dev.off()
 
 # Observed vs predicted
 # Observed count per site-year: mean across visits
-y_obs <- apply(y, c(1, 2), mean, na.rm = TRUE)
+# y_obs <- apply(y, c(1, 2), mean, na.rm = TRUE)
+y_obs <- apply(y_train, c(1, 2), mean, na.rm = TRUE)
 
 df_obs_pred <- bind_rows(
   data.frame(
