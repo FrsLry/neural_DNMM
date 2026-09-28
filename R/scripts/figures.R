@@ -1399,7 +1399,7 @@ dev.off()
 
 ## Estimate N, S, R
 # For NN
-# Use training sites only, because the Bayesian model was fitted on training sites only
+# Use training sites
 
 x_route_train <- x_route[train_idx, , drop = FALSE]
 x_p_train <- x_p[train_idx, , , , drop = FALSE]
@@ -1534,4 +1534,282 @@ ggplot(df_obs_pred, aes(x = observed + 1, y = predicted + 1)) +
 dev.off()
 
 
+## Test set analysis
+## Test data
+x_route_test <- x_route[test_idx, , drop = FALSE]
+x_p_test <- x_p[test_idx, , , , drop = FALSE]
+x_phi_gamma_test <- x_phi_gamma[test_idx, , drop = FALSE]
+y_test <- y[test_idx, , , drop = FALSE]
 
+y_test <- array(as.numeric(y_test), dim = dim(y_test))
+
+x_route_test_t <- torch$tensor(x_route_test, dtype = torch$float32)
+x_p_test_t <- torch$tensor(x_p_test, dtype = torch$float32)
+x_phi_gamma_test_t <- torch$tensor(x_phi_gamma_test, dtype = torch$float32)
+y_test_t <- torch$tensor(y_test, dtype = torch$float32)
+
+## Use same truncation level for both models
+n_max_test <- as.integer(max(y_test, na.rm = TRUE)) + 60L
+nt_test <- as.integer(dim(y_test)[2])
+
+
+## Neural network test likelihood
+with(torch$no_grad(), {
+  pred_test_nn <- model(x_route_test_t, x_p_test_t, x_phi_gamma_test_t)
+})
+
+phi_nn_test <- pred_test_nn[[1]]
+gamma_nn_test <- pred_test_nn[[2]]
+lambda_nn_test <- pred_test_nn[[3]]
+p_nn_test <- pred_test_nn[[4]]
+
+ll_nn_test <- backward_likelihood(
+  y_test_t,
+  lambda_nn_test,
+  p_nn_test,
+  phi_nn_test,
+  gamma_nn_test,
+  n_max_test,
+  nt_test,
+  recruitment = "absolute"
+)
+
+nll_nn_site <- -py_to_r(ll_nn_test$detach()$cpu()$numpy())
+nll_nn_test <- mean(nll_nn_site)
+
+cat("NN test NLL:", nll_nn_test, "\n")
+
+## Bayesian test likelihood
+lambda_bayes_test <- exp(
+  out$mean$alpha.lam +
+    out$mean$beta.elev  * x_route_test[, 1] +
+    out$mean$beta.elev2 * x_route_test[, 1]^2 +
+    out$mean$beta.for   * x_route_test[, 2]
+)
+
+phi_bayes_test <- matrix(
+  out$mean$phi,
+  nrow = length(test_idx),
+  ncol = nt_test - 1
+)
+
+gamma_bayes_test <- matrix(
+  out$mean$gamma0,
+  nrow = length(test_idx),
+  ncol = nt_test - 1
+)
+
+p_bayes_test <- plogis(
+  out$mean$alpha.p +
+    out$mean$beta.jul  * x_p_test[, , , 1] +
+    out$mean$beta.jul2 * x_p_test[, , , 1]^2 +
+    out$mean$beta.int  * x_p_test[, , , 2] +
+    out$mean$beta.int2 * x_p_test[, , , 2]^2
+)
+
+lambda_bayes_test_t <- torch$tensor(
+  matrix(lambda_bayes_test, ncol = 1),
+  dtype = torch$float32
+)
+
+phi_bayes_test_t <- torch$tensor(
+  phi_bayes_test,
+  dtype = torch$float32
+)
+
+gamma_bayes_test_t <- torch$tensor(
+  gamma_bayes_test,
+  dtype = torch$float32
+)
+
+p_bayes_test_t <- torch$tensor(
+  p_bayes_test,
+  dtype = torch$float32
+)
+
+ll_bayes_test <- backward_likelihood(
+  y_test_t,
+  lambda_bayes_test_t,
+  p_bayes_test_t,
+  phi_bayes_test_t,
+  gamma_bayes_test_t,
+  n_max_test,
+  nt_test,
+  recruitment = "absolute"
+)
+
+nll_bayes_site <- -py_to_r(ll_bayes_test$detach()$cpu()$numpy())
+nll_bayes_test <- mean(nll_bayes_site)
+
+cat("Bayesian test NLL:", nll_bayes_test, "\n")
+
+
+## Save and plot result
+test_nll_summary <- data.frame(
+  framework = c("Neural Network", "Bayesian"),
+  test_nll = c(nll_nn_test, nll_bayes_test)
+)
+
+print(test_nll_summary)
+
+## Held-out observed counts: point predictions
+expected_N_process <- function(lambda, phi, gamma) {
+  nsite <- length(lambda)
+  nt <- ncol(phi) + 1
+
+  E_N <- matrix(NA_real_, nrow = nsite, ncol = nt)
+  E_N[, 1] <- lambda
+
+  for(t in 2:nt) {
+    E_N[, t] <- phi[, t - 1] * E_N[, t - 1] + gamma[, t - 1]
+  }
+
+  E_N
+}
+
+
+## NN predicted counts
+lambda_nn_test_r <- as.numeric(py_to_r(lambda_nn_test$detach()$cpu()$numpy()))
+phi_nn_test_r <- py_to_r(phi_nn_test$detach()$cpu()$numpy())
+gamma_nn_test_r <- py_to_r(gamma_nn_test$detach()$cpu()$numpy())
+p_nn_test_r <- py_to_r(p_nn_test$detach()$cpu()$numpy())
+
+E_N_nn_prior <- expected_N_process(
+  lambda = lambda_nn_test_r,
+  phi = phi_nn_test_r,
+  gamma = gamma_nn_test_r
+)
+
+
+## Bayesian predicted counts
+E_N_bayes_prior <- expected_N_process(
+  lambda = lambda_bayes_test,
+  phi = phi_bayes_test,
+  gamma = gamma_bayes_test
+)
+
+## Helper: expand E[N] from site × year to site × year × repeat
+expand_EN_to_counts <- function(E_N, target_dim) {
+  array(
+    rep(as.numeric(E_N), times = target_dim[3]),
+    dim = target_dim
+  )
+}
+
+## Make sure p arrays have the same dimensions as y_test
+p_nn_test_r <- array(as.numeric(p_nn_test_r), dim = dim(y_test))
+p_bayes_test <- array(as.numeric(p_bayes_test), dim = dim(y_test))
+
+## Expand expected N to repeated-count dimension
+E_N_nn_array <- expand_EN_to_counts(E_N_nn_prior, dim(y_test))
+E_N_bayes_array <- expand_EN_to_counts(E_N_bayes_prior, dim(y_test))
+
+## Predicted observed counts: E[y_itj] = E[N_it] * p_itj
+yhat_nn_test <- E_N_nn_array * p_nn_test_r
+yhat_bayes_test <- E_N_bayes_array * p_bayes_test
+
+score_pred <- function(observed, predicted) {
+  ok <- is.finite(observed) & is.finite(predicted)
+
+  data.frame(
+    RMSE = sqrt(mean((observed[ok] - predicted[ok])^2)),
+    MAE = mean(abs(observed[ok] - predicted[ok])),
+    correlation = cor(observed[ok], predicted[ok])
+  )
+}
+
+point_pred_summary <- bind_rows(
+  cbind(
+    framework = "Neural Network",
+    score_pred(as.vector(y_test), as.vector(yhat_nn_test))
+  ),
+  cbind(
+    framework = "Bayesian",
+    score_pred(as.vector(y_test), as.vector(yhat_bayes_test))
+  )
+)
+
+print(point_pred_summary)
+
+## Mean observed and predicted counts per site-year
+# y_test_mean <- apply(y_test, c(1, 2), mean, na.rm = TRUE)
+# yhat_nn_mean <- apply(yhat_nn_test, c(1, 2), mean, na.rm = TRUE)
+# yhat_bayes_mean <- apply(yhat_bayes_test, c(1, 2), mean, na.rm = TRUE)
+#
+# df_count_pred <- bind_rows(
+#   data.frame(
+#     observed = as.vector(y_test_mean),
+#     predicted = as.vector(yhat_nn_mean),
+#     framework = "Neural Network"
+#   ),
+#   data.frame(
+#     observed = as.vector(y_test_mean),
+#     predicted = as.vector(yhat_bayes_mean),
+#     framework = "Bayesian"
+#   )
+# ) %>%
+#   filter(is.finite(observed), is.finite(predicted))
+#
+# pdf("../figures/gw_test_observed_vs_predicted_counts.pdf", height = 5.83, width = 8.27)
+#
+# # ggplot(df_count_pred, aes(x = observed + 1, y = predicted + 1)) +
+# ggplot(df_count_pred, aes(x = observed, y = predicted)) +
+#   ggrastr::rasterise(geom_point(alpha = 0.5), dpi = 300) +
+#   geom_abline(intercept = 0, slope = 1, linetype = "dashed", colour = "red") +
+#   geom_smooth(method = "lm", se = FALSE, colour = "blue", linewidth = 0.8) +
+#   facet_wrap(~ framework) +
+#   labs(
+#     x = "Observed held-out count + 1",
+#     y = "Predicted held-out count + 1"
+#   ) +
+#   # scale_x_log10() +
+#   # scale_y_log10() +
+#   theme(
+#     panel.background = element_blank(),
+#     panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+#     panel.grid.minor = element_blank(),
+#     axis.line = element_line(color = "black"),
+#     strip.background = element_blank(),
+#     strip.text = element_text(size = 10)
+#   )
+#
+# dev.off()
+
+
+df_count_pred_visit <- bind_rows(
+  data.frame(
+    observed = as.vector(y_test),
+    predicted = as.vector(yhat_nn_test),
+    framework = "Neural Network"
+  ),
+  data.frame(
+    observed = as.vector(y_test),
+    predicted = as.vector(yhat_bayes_test),
+    framework = "Bayesian"
+  )
+) %>%
+  filter(is.finite(observed), is.finite(predicted))
+
+pdf("../figures/gw_test_observed_vs_predicted_counts.pdf", height = 5.83, width = 8.27)
+
+ggplot(df_count_pred_visit, aes(x = observed + 1, y = predicted + 1)) +
+  ggrastr::rasterise(geom_point(alpha = 0.35), dpi = 300) +
+  geom_abline(intercept = 0, slope = 1, linetype = "dashed", colour = "red") +
+  geom_smooth(method = "lm", se = FALSE, colour = "blue", linewidth = 0.8) +
+  facet_wrap(~ framework) +
+  labs(
+    x = "Observed count (+ 1)",
+    y = "Fitted count (+ 1)"
+  ) +
+  scale_x_log10() +
+  scale_y_log10() +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 10)
+  )
+
+dev.off()
