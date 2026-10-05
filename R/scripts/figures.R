@@ -1644,7 +1644,7 @@ nll_bayes_test <- mean(nll_bayes_site)
 cat("Bayesian test NLL:", nll_bayes_test, "\n")
 
 
-## Save and plot result
+## Result
 test_nll_summary <- data.frame(
   framework = c("Neural Network", "Bayesian"),
   test_nll = c(nll_nn_test, nll_bayes_test)
@@ -1790,7 +1790,9 @@ df_count_pred_visit <- bind_rows(
 ) %>%
   filter(is.finite(observed), is.finite(predicted))
 
-pdf("../figures/gw_test_observed_vs_predicted_counts.pdf", height = 5.83, width = 8.27)
+pdf("../figures/gw_test_observed_vs_predicted_counts.pdf",
+    # height = 5.83, width = 8.27
+    height = 4, width = 8.27)
 
 ggplot(df_count_pred_visit, aes(x = observed + 1, y = predicted + 1)) +
   ggrastr::rasterise(geom_point(alpha = 0.35), dpi = 300) +
@@ -1798,8 +1800,8 @@ ggplot(df_count_pred_visit, aes(x = observed + 1, y = predicted + 1)) +
   geom_smooth(method = "lm", se = FALSE, colour = "blue", linewidth = 0.8) +
   facet_wrap(~ framework) +
   labs(
-    x = "Observed count (+ 1)",
-    y = "Fitted count (+ 1)"
+    x = "Observed count",
+    y = "Predicted count"
   ) +
   scale_x_log10() +
   scale_y_log10() +
