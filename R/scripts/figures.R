@@ -1445,6 +1445,240 @@ N_bayes <- out$mean$N
 S_bayes <- out$mean$S[,-1]
 R_bayes <- out$mean$R[,-1]
 
+## Green Woodpecker time series: observed counts, N, S, R
+## Years
+years <- 2004:(2004 + ncol(N_nn) - 1)
+
+## Observed mean count per site-year, averaged over visits
+## y_train is site x year x visit
+obs_site_year <- apply(y_train, c(1, 2), mean, na.rm = TRUE)
+
+obs_ts <- data.frame(
+  year = years,
+  value = colMeans(obs_site_year, na.rm = TRUE),
+  quantity = "Abundance / observed counts",
+  framework = "Observed mean count"
+)
+
+## Estimated abundance: mean estimated N per site and year
+N_ts <- bind_rows(
+  data.frame(
+    year = years,
+    value = colMeans(N_nn, na.rm = TRUE),
+    quantity = "Abundance / observed counts",
+    framework = "Neural Network"
+  ),
+  data.frame(
+    year = years,
+    value = colMeans(N_bayes, na.rm = TRUE),
+    quantity = "Abundance / observed counts",
+    framework = "Bayesian"
+  )
+)
+
+## S and R are transitions between years.
+## Plot them at the destination year: 2005, 2006, ...
+transition_years <- years[-1]
+
+S_ts <- bind_rows(
+  data.frame(
+    year = transition_years,
+    value = colMeans(S_nn, na.rm = TRUE),
+    quantity = "Number of survivors",
+    framework = "Neural Network"
+  ),
+  data.frame(
+    year = transition_years,
+    value = colMeans(S_bayes, na.rm = TRUE),
+    quantity = "Number of survivors",
+    framework = "Bayesian"
+  )
+)
+
+R_ts <- bind_rows(
+  data.frame(
+    year = transition_years,
+    value = colMeans(R_nn, na.rm = TRUE),
+    quantity = "Number of recruits",
+    framework = "Neural Network"
+  ),
+  data.frame(
+    year = transition_years,
+    value = colMeans(R_bayes, na.rm = TRUE),
+    quantity = "Number of recruits",
+    framework = "Bayesian"
+  )
+)
+
+df_gw_ts <- bind_rows(obs_ts, N_ts, S_ts, R_ts) %>%
+  mutate(
+    quantity = factor(
+      quantity,
+      levels = c(
+        "Abundance / observed counts",
+        "Number of survivors",
+        "Number of recruits"
+      )
+    ),
+    framework = factor(
+      framework,
+      levels = c("Observed mean count", "Neural Network", "Bayesian")
+    )
+  )
+
+pdf("../figures/greenWoodpecker_time_series.pdf",
+    height = 6.5, width = 8.27)
+
+ggplot(df_gw_ts, aes(x = year, y = value, colour = framework, linetype = framework)) +
+  geom_line(linewidth = 0.8) +
+  geom_point(size = 1.8) +
+  facet_wrap(~ quantity, scales = "free_y", ncol = 1) +
+  scale_linetype_manual(
+    values = c(
+      "Observed mean count" = "dotted",
+      "Neural Network" = "longdash",
+      "Bayesian" = "solid"
+    )
+  ) +
+  labs(
+    x = "Year",
+    y = "Mean value per site",
+    colour = NULL,
+    linetype = NULL
+  ) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 10),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8),
+    panel.spacing = unit(0.8, "lines")
+  )
+
+dev.off()
+
+# One-panel version
+df_gw_ts_one <- bind_rows(
+  data.frame(
+    year = years,
+    value = colMeans(obs_site_year, na.rm = TRUE),
+    quantity = "Observed mean count",
+    framework = "Observed"
+  ),
+
+  data.frame(
+    year = years,
+    value = colMeans(N_nn, na.rm = TRUE),
+    quantity = "Abundance",
+    framework = "Neural Network"
+  ),
+  data.frame(
+    year = years,
+    value = colMeans(N_bayes, na.rm = TRUE),
+    quantity = "Abundance",
+    framework = "Bayesian"
+  ),
+
+  data.frame(
+    year = transition_years,
+    value = colMeans(S_nn, na.rm = TRUE),
+    quantity = "Survivors",
+    framework = "Neural Network"
+  ),
+  data.frame(
+    year = transition_years,
+    value = colMeans(S_bayes, na.rm = TRUE),
+    quantity = "Survivors",
+    framework = "Bayesian"
+  ),
+
+  data.frame(
+    year = transition_years,
+    value = colMeans(R_nn, na.rm = TRUE),
+    quantity = "Recruits",
+    framework = "Neural Network"
+  ),
+  data.frame(
+    year = transition_years,
+    value = colMeans(R_bayes, na.rm = TRUE),
+    quantity = "Recruits",
+    framework = "Bayesian"
+  )
+) %>%
+  mutate(
+    quantity = factor(
+      quantity,
+      levels = c("Observed mean count", "Abundance", "Survivors", "Recruits")
+    ),
+    framework = factor(
+      framework,
+      levels = c("Observed", "Neural Network", "Bayesian")
+    )
+  )
+
+pdf("../figures/greenWoodpecker_time_series_one_panel.pdf",
+    height = 5.83, width = 8.27)
+
+ggplot(
+  df_gw_ts_one,
+  aes(
+    x = year,
+    y = value,
+    colour = quantity,
+    linetype = framework,
+    shape = framework,
+    linewidth = framework,
+    group = interaction(quantity, framework)
+  )) +
+  geom_line() +
+  geom_point(size = 1.8) +
+  scale_linetype_manual(
+    values = c(
+      "Observed" = "dotted",
+      "Neural Network" = "dotdash",
+      "Bayesian" = "solid"
+    )
+  ) +
+  scale_shape_manual(
+    values = c(
+      "Observed" = 1,
+      "Neural Network" = 17,
+      "Bayesian" = 16
+    )
+  ) +
+  scale_linewidth_manual(
+    values = c(
+      "Observed" = 1,
+      "Neural Network" = 0.9,
+      "Bayesian" = 0.7
+    )
+  ) +
+  labs(
+    x = "Year",
+    y = "Mean value per site",
+    colour = NULL,
+    linetype = NULL,
+    shape = NULL,
+    linewidth = NULL
+  ) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8),
+    legend.key.height = unit(0.4, "lines"),
+    legend.key.width = unit(1.6, "lines"))
+
+dev.off()
+
+
 cat("NN N dim:", dim(N_nn), "\n")
 cat("Bayesian N dim:", dim(N_bayes), "\n")
 
