@@ -280,8 +280,81 @@ preds %>%
 
 dev.off()
 
+## Simplified version with fewer simulation scenarios
+set.seed(347)
+sim_ids_subset <- sample(unique(preds$sim_id), size = 4)
+
+pdf("../figures/sim_comparisons_subset.pdf", height = 5.83, width = 8.27)
+
+preds %>%
+  filter(sim_id %in% sim_ids_subset) %>%
+  mutate(
+    param = case_when(
+      param == "phi"   ~ "phi~' (survival)'",
+      param == "gamma" ~ "gamma~'(recruitment)'",
+      param == "lambd" ~ "lambda~'(abundance '~t[1]*')'",
+      param == "p"     ~ "p~'(detection)'"
+    ),
+    type = case_when(
+      type == "JAGS"      ~ "Bayesian",
+      type == "NN"        ~ "Neural Network",
+      type == "Simulated" ~ "Simulation"
+    )
+  ) %>%
+  ggplot() +
+  geom_line(aes(x, value, colour = sim_id, linetype = type), linewidth = 0.8) +
+  scale_linetype_manual(
+    values = c(
+      "Simulation" = "solid",
+      "Bayesian" = "dotted",
+      "Neural Network" = "dashed"
+    )
+  ) +
+  facet_wrap(vars(param), scales = "free", labeller = label_parsed) +
+  facetted_pos_scales(
+    y = list(
+      param %in% c(
+        "phi~' (survival)'",
+        "p~'(detection)'"
+      ) ~ scale_y_continuous(limits = c(0, 1)),
+      param %in% c(
+        "gamma~'(recruitment)'"
+      ) ~ scale_y_log10(),
+      param %in% c(
+        "lambda~'(abundance '~t[1]*')'"
+      ) ~ scale_y_continuous(trans = "sqrt")
+    )
+  ) +
+  ylab("Parameter value") +
+  xlab("Simulated covariate (x)") +
+  guides(
+    colour = "none",
+    linetype = guide_legend(nrow = 1)
+  ) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 10),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8),
+    legend.key.height = unit(0.4, "lines"),
+    legend.key.width  = unit(1.2, "lines"),
+    legend.spacing.x = unit(0.3, "lines"),
+    legend.box.margin = margin(-5, 0, -5, 0),
+    panel.spacing = unit(0.8, "lines")
+  )
+
+dev.off()
 
 ## N, S, R plots
+## Use the same subset of simulations for simplified main-text figures
+set.seed(347)
+sim_ids_subset <- sample(names(latent_NN), size = 4)
+
 #### N ###########
 df_compare <- data.frame(
   sim_id = character(),
@@ -322,6 +395,56 @@ rmse_bayes <- df_compare %>%
 
 lab_nn <- paste0("Mean RMSE = ", round(rmse_nn, 2))
 lab_bayes <- paste0("Mean RMSE = ", round(rmse_bayes, 2))
+
+df_compare_N_subset <- df_compare %>%
+  filter(sim_id %in% sim_ids_subset)
+
+lab_nn_subset <- paste0("Mean RMSE (all sims) = ", round(rmse_nn, 2))
+lab_bayes_subset <- paste0("Mean RMSE (all sims) = ", round(rmse_bayes, 2))
+
+p1_N_subset <-
+  df_compare_N_subset %>%
+  select(-"N_Bayes") %>%
+  ggplot(aes(x = N_Sim, y = N_NN, colour = sim_id)) +
+  ggrastr::rasterise(geom_point(alpha = 0.5, show.legend = FALSE), dpi = 300) +
+  geom_function(fun = function(x) x, linetype = "dashed", colour = "black") +
+  annotate(
+    "text",
+    x = min(df_compare_N_subset$N_Sim, na.rm = TRUE),
+    y = max(df_compare_N_subset$N_NN, na.rm = TRUE),
+    label = lab_nn_subset,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  theme_bw() +
+  labs(
+    x = "N (Simulation)",
+    y = "N (Neural Network)",
+    colour = "Simulation"
+  )
+
+p2_N_subset <-
+  df_compare_N_subset %>%
+  select(-"N_NN") %>%
+  ggplot(aes(x = N_Sim, y = N_Bayes, colour = sim_id)) +
+  ggrastr::rasterise(geom_point(alpha = 0.5, show.legend = FALSE), dpi = 300) +
+  geom_function(fun = function(x) x, linetype = "dashed", colour = "black") +
+  annotate(
+    "text",
+    x = min(df_compare_N_subset$N_Sim, na.rm = TRUE),
+    y = max(df_compare_N_subset$N_Bayes, na.rm = TRUE),
+    label = lab_bayes_subset,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  theme_bw() +
+  labs(
+    x = "N (Simulation)",
+    y = "N (Bayesian)",
+    colour = "Simulation"
+  )
 
 p1_N <-
 df_compare %>%
@@ -437,6 +560,56 @@ rmse_bayes <- df_compare %>%
 lab_nn <- paste0(" Mean RMSE = ", round(rmse_nn, 2))
 lab_bayes <- paste0("Mean RMSE = ", round(rmse_bayes, 2))
 
+df_compare_S_subset <- df_compare %>%
+  filter(sim_id %in% sim_ids_subset)
+
+lab_nn_subset <- paste0("Mean RMSE (all sims) = ", round(rmse_nn, 2))
+lab_bayes_subset <- paste0("Mean RMSE (all sims) = ", round(rmse_bayes, 2))
+
+p1_S_subset <-
+  df_compare_S_subset %>%
+  select(-"S_Bayes") %>%
+  ggplot(aes(x = S_Sim, y = S_NN, colour = sim_id)) +
+  ggrastr::rasterise(geom_point(alpha = 0.5, show.legend = FALSE), dpi = 300) +
+  geom_function(fun = function(x) x, linetype = "dashed", colour = "black") +
+  annotate(
+    "text",
+    x = min(df_compare_S_subset$S_Sim, na.rm = TRUE),
+    y = max(df_compare_S_subset$S_NN, na.rm = TRUE),
+    label = lab_nn_subset,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  theme_bw() +
+  labs(
+    x = "S (Simulation)",
+    y = "S (Neural Network)",
+    colour = "Simulation"
+  )
+
+p2_S_subset <-
+  df_compare_S_subset %>%
+  select(-"S_NN") %>%
+  ggplot(aes(x = S_Sim, y = S_Bayes, colour = sim_id)) +
+  ggrastr::rasterise(geom_point(alpha = 0.5, show.legend = FALSE), dpi = 300) +
+  geom_function(fun = function(x) x, linetype = "dashed", colour = "black") +
+  annotate(
+    "text",
+    x = min(df_compare_S_subset$S_Sim, na.rm = TRUE),
+    y = max(df_compare_S_subset$S_Bayes, na.rm = TRUE),
+    label = lab_bayes_subset,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  theme_bw() +
+  labs(
+    x = "S (Simulation)",
+    y = "S (Bayesian)",
+    colour = "Simulation"
+  )
+
 p1_S <-
   df_compare %>%
   select(-"S_Bayes") %>%
@@ -551,6 +724,56 @@ rmse_bayes <- df_compare %>%
 lab_nn <- paste0("Mean RMSE = ", round(rmse_nn, 2))
 lab_bayes <- paste0("Mean RMSE = ", round(rmse_bayes, 2))
 
+df_compare_R_subset <- df_compare %>%
+  filter(sim_id %in% sim_ids_subset)
+
+lab_nn_subset <- paste0("Mean RMSE (all sims) = ", round(rmse_nn, 2))
+lab_bayes_subset <- paste0("Mean RMSE (all sims) = ", round(rmse_bayes, 2))
+
+p1_R_subset <-
+  df_compare_R_subset %>%
+  select(-"R_Bayes") %>%
+  ggplot(aes(x = R_Sim, y = R_NN, colour = sim_id)) +
+  ggrastr::rasterise(geom_point(alpha = 0.5, show.legend = FALSE), dpi = 300) +
+  geom_function(fun = function(x) x, linetype = "dashed", colour = "black") +
+  annotate(
+    "text",
+    x = min(df_compare_R_subset$R_Sim, na.rm = TRUE),
+    y = max(df_compare_R_subset$R_NN, na.rm = TRUE),
+    label = lab_nn_subset,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  theme_bw() +
+  labs(
+    x = "R (Simulation)",
+    y = "R (Neural Network)",
+    colour = "Simulation"
+  )
+
+p2_R_subset <-
+  df_compare_R_subset %>%
+  select(-"R_NN") %>%
+  ggplot(aes(x = R_Sim, y = R_Bayes, colour = sim_id)) +
+  ggrastr::rasterise(geom_point(alpha = 0.5, show.legend = FALSE), dpi = 300) +
+  geom_function(fun = function(x) x, linetype = "dashed", colour = "black") +
+  annotate(
+    "text",
+    x = min(df_compare_R_subset$R_Sim, na.rm = TRUE),
+    y = max(df_compare_R_subset$R_Bayes, na.rm = TRUE),
+    label = lab_bayes_subset,
+    hjust = 0,
+    vjust = 1,
+    size = 4
+  ) +
+  theme_bw() +
+  labs(
+    x = "R (Simulation)",
+    y = "R (Bayesian)",
+    colour = "Simulation"
+  )
+
 p1_R <-
   df_compare %>%
   select(-"R_Bayes") %>%
@@ -630,6 +853,17 @@ pdf("../figures/NSR_comparisons.pdf", height = 8.74, width = 8.27)
 cowplot::plot_grid(p1_N, p2_N,
                    p1_S, p2_S,
                    p1_R, p2_R, nrow = 3)
+
+dev.off()
+
+pdf("../figures/NSR_comparisons_subset.pdf", height = 8.74, width = 8.27)
+
+cowplot::plot_grid(
+  p1_N_subset, p2_N_subset,
+  p1_S_subset, p2_S_subset,
+  p1_R_subset, p2_R_subset,
+  nrow = 3
+)
 
 dev.off()
 
@@ -914,7 +1148,74 @@ preds %>%
 
 dev.off()
 
+## Simplified version with fewer simulation scenarios
+set.seed(347)
+sim_ids_subset_cnn <- sample(unique(preds$sim_id), size = 4)
 
+pdf("../figures/CNN_comparisons_subset.pdf", height = 5.83, width = 8.27)
+
+preds %>%
+  filter(sim_id %in% sim_ids_subset_cnn) %>%
+  mutate(
+    param = case_when(
+      param == "phi"   ~ "phi~' (survival)'",
+      param == "gamma" ~ "gamma~'(recruitment)'",
+      param == "lambd" ~ "lambda~'(abundance '~t[1]*')'",
+      param == "p"     ~ "p~'(detection)'"
+    ),
+    type = case_when(
+      type == "NN"        ~ "Neural Network",
+      type == "Simulated" ~ "Simulation"
+    )
+  ) %>%
+  ggplot() +
+  geom_line(aes(x, value, colour = sim_id, linetype = type), linewidth = 0.8) +
+  scale_linetype_manual(
+    values = c(
+      "Simulation" = "solid",
+      "Neural Network" = "dashed"
+    )
+  ) +
+  facet_wrap(vars(param), scales = "free", labeller = label_parsed) +
+  facetted_pos_scales(
+    y = list(
+      param %in% c(
+        "phi~' (survival)'",
+        "p~'(detection)'"
+      ) ~ scale_y_continuous(limits = c(0, 1)),
+      param %in% c(
+        "gamma~'(recruitment)'"
+      ) ~ scale_y_log10(),
+      param %in% c(
+        "lambda~'(abundance '~t[1]*')'"
+      ) ~ scale_y_continuous(trans = "sqrt")
+    )
+  ) +
+  ylab("Parameter value") +
+  xlab("Simulated images") +
+  guides(
+    colour = "none",
+    linetype = guide_legend(nrow = 1)
+  ) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 10),
+    legend.position = "bottom",
+    legend.title = element_blank(),
+    legend.text = element_text(size = 8),
+    legend.key.height = unit(0.4, "lines"),
+    legend.key.width  = unit(1.2, "lines"),
+    legend.spacing.x = unit(0.3, "lines"),
+    legend.box.margin = margin(-5, 0, -5, 0),
+    axis.text.x = element_blank(),
+    panel.spacing = unit(0.8, "lines")
+  )
+
+dev.off()
 
 ## N, S, R plots
 df_compare_all <- data.frame()
@@ -986,6 +1287,73 @@ df_compare_all %>%
   facet_wrap(~ metric, scales = "free") +
   #scale_x_log10() +
   #scale_y_log10() +
+  labs(
+    x = "Simulation",
+    y = "Neural Network"
+  ) +
+  theme(
+    panel.background = element_blank(),
+    panel.grid.major = element_line(color = "grey85", linewidth = 0.3),
+    panel.grid.minor = element_blank(),
+    axis.line = element_line(color = "black"),
+    strip.background = element_blank(),
+    strip.text = element_text(size = 10),
+    panel.spacing = unit(0.8, "lines"),
+    legend.position = "none"
+  )
+
+dev.off()
+
+## Simplified CNN N, S, R plot with same subset of simulation scenarios
+
+df_compare_all_subset <- df_compare_all %>%
+  filter(sim_id %in% sim_ids_subset_cnn)
+
+rmse_labs_subset <- df_compare_all %>%
+  group_by(metric, sim_id) %>%
+  summarise(
+    rmse = sqrt(mean((Simulation - NN)^2, na.rm = TRUE)),
+    .groups = "drop"
+  ) %>%
+  group_by(metric) %>%
+  summarise(
+    lab = paste0("Mean RMSE = ", round(mean(rmse, na.rm = TRUE), 2)),
+    .groups = "drop"
+  ) %>%
+  left_join(
+    df_compare_all_subset %>%
+      group_by(metric) %>%
+      summarise(
+        x = min(Simulation, na.rm = TRUE),
+        y = max(NN, na.rm = TRUE),
+        .groups = "drop"
+      ),
+    by = "metric"
+  )
+
+pdf("../figures/CNN_NSR_subset.pdf", height = 4, width = 8.27)
+
+df_compare_all_subset %>%
+  ggplot(aes(x = Simulation + 1, y = NN + 1)) +
+  ggrastr::rasterise(
+    geom_point(aes(colour = sim_id), alpha = 0.5, show.legend = FALSE),
+    dpi = 300
+  ) +
+  geom_abline(
+    intercept = 0,
+    slope = 1,
+    linetype = "dashed",
+    linewidth = 0.7
+  ) +
+  geom_text(
+    data = rmse_labs_subset,
+    aes(x = x + 1, y = y + 1, label = lab),
+    inherit.aes = FALSE,
+    hjust = 0,
+    vjust = 1,
+    size = 3.5
+  ) +
+  facet_wrap(~ metric, scales = "free") +
   labs(
     x = "Simulation",
     y = "Neural Network"
@@ -1621,7 +1989,7 @@ df_gw_ts_one <- bind_rows(
   )
 
 pdf("../figures/greenWoodpecker_time_series_one_panel.pdf",
-    height = 5.83, width = 8.27)
+    height = 4, width = 8.27)
 
 ggplot(
   df_gw_ts_one,

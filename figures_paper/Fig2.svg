@@ -7,7 +7,7 @@
    viewBox="0 0 286.89216 164.45852"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
    sodipodi:docname="Fig2.svg"
    inkscape:export-filename="Fig2.jpg"
    inkscape:export-xdpi="300"
@@ -26,13 +26,13 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
-     inkscape:zoom="0.71891836"
-     inkscape:cx="523.00792"
-     inkscape:cy="234.37988"
+     inkscape:zoom="2.8756734"
+     inkscape:cx="69.375054"
+     inkscape:cy="69.027309"
      inkscape:window-width="1920"
-     inkscape:window-height="1009"
-     inkscape:window-x="1912"
-     inkscape:window-y="-8"
+     inkscape:window-height="1111"
+     inkscape:window-x="-9"
+     inkscape:window-y="-9"
      inkscape:window-maximized="1"
      inkscape:current-layer="layer1" />
   <defs
@@ -2503,6 +2503,12 @@
            id="path8088" />
       </g>
     </g>
+    <rect
+       x="30.601528"
+       y="-48.68425"
+       width="114.06024"
+       height="25.733103"
+       id="rect1-1" />
   </defs>
   <g
      inkscape:label="Layer 1"
@@ -3639,17 +3645,17 @@
        style="font-weight:bold;font-size:26.6667px;line-height:1;font-family:Helvetica;-inkscape-font-specification:'Helvetica Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2);display:inline;fill:#868686;fill-opacity:1;stroke:#000000;stroke-width:1.37953;stroke-dasharray:none"
        x="77.179688"
        y="0"><tspan
-         x="356.35702"
+         x="352.65259"
          y="-69.368371"
-         id="tspan2"><tspan
+         id="tspan34"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan1">Activation
+           id="tspan4">Activation
 </tspan></tspan><tspan
          x="367.46381"
          y="-42.701669"
-         id="tspan6"><tspan
+         id="tspan36"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan5">function</tspan></tspan></text>
+           id="tspan35">function</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,-49.42582,-10.376931)"
@@ -3659,9 +3665,9 @@
        y="0"><tspan
          x="377.84143"
          y="-69.368371"
-         id="tspan8"><tspan
+         id="tspan38"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan7">Inputs</tspan></tspan></text>
+           id="tspan37">Inputs</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,17.580961,-15.355028)"
@@ -3669,17 +3675,17 @@
        style="font-weight:bold;font-size:26.6667px;line-height:1;font-family:Helvetica;-inkscape-font-specification:'Helvetica Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-52-3);display:inline;fill:#868686;fill-opacity:1;stroke:#000000;stroke-width:1.37953;stroke-dasharray:none"
        x="77.179688"
        y="0"><tspan
-         x="371.91043"
+         x="368.206"
          y="-69.368371"
-         id="tspan10"><tspan
+         id="tspan40"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan9">Hidden
+           id="tspan39">Hidden
 </tspan></tspan><tspan
          x="378.59663"
          y="-42.701669"
-         id="tspan12"><tspan
+         id="tspan42"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan11">layers</tspan></tspan></text>
+           id="tspan41">layers</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,42.248106,136.83895)"
@@ -3689,14 +3695,14 @@
        y="0"><tspan
          x="344.76196"
          y="-69.368371"
-         id="tspan14"><tspan
+         id="tspan44"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;fill:#000000;stroke:none"
-           id="tspan13">MLP,  CNN, </tspan></tspan><tspan
+           id="tspan43">MLP,  CNN, </tspan></tspan><tspan
          x="288.19287"
          y="-42.701669"
-         id="tspan16"><tspan
+         id="tspan46"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;fill:#000000;stroke:none"
-           id="tspan15">multimodal network...</tspan></tspan></text>
+           id="tspan45">multimodal network...</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,122.71518,-15.255635)"
@@ -3704,17 +3710,17 @@
        style="font-weight:bold;font-size:26.6667px;line-height:1;font-family:Helvetica;-inkscape-font-specification:'Helvetica Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-4);display:inline;fill:#868686;fill-opacity:1;stroke:#000000;stroke-width:1.37953;stroke-dasharray:none"
        x="77.179688"
        y="0"><tspan
-         x="368.21251"
+         x="364.50808"
          y="-69.368371"
-         id="tspan18"><tspan
+         id="tspan48"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan17">Inferred
+           id="tspan47">Inferred
 </tspan></tspan><tspan
          x="346.7281"
          y="-42.701669"
-         id="tspan20"><tspan
+         id="tspan50"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica;stroke:none"
-           id="tspan19">parameters</tspan></tspan></text>
+           id="tspan49">parameters</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,193.57213,80.318212)"
@@ -3722,17 +3728,17 @@
        style="font-weight:bold;font-size:21.3333px;line-height:1;font-family:Helvetica;-inkscape-font-specification:'Helvetica Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-4-1);display:inline;fill:#868686;fill-opacity:1;stroke:none;stroke-width:1.37953;stroke-dasharray:none"
        x="77.179688"
        y="0"><tspan
-         x="369.10066"
+         x="366.13712"
          y="-73.716621"
-         id="tspan22"><tspan
+         id="tspan52"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica"
-           id="tspan21">Negative 
+           id="tspan51">Negative 
 </tspan></tspan><tspan
          x="351.90277"
          y="-52.383323"
-         id="tspan24"><tspan
+         id="tspan54"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica"
-           id="tspan23">log-likelihood</tspan></tspan></text>
+           id="tspan53">log-likelihood</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,174.45129,130.49065)"
@@ -3740,17 +3746,17 @@
        style="font-weight:bold;font-size:21.3333px;line-height:1;font-family:Helvetica;-inkscape-font-specification:'Helvetica Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-4-1-8);display:inline;fill:#868686;fill-opacity:1;stroke:none;stroke-width:1.37953;stroke-dasharray:none"
        x="77.179688"
        y="0"><tspan
-         x="367.32983"
+         x="364.36629"
          y="-73.716621"
-         id="tspan26"><tspan
+         id="tspan56"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica"
-           id="tspan25">Backward
+           id="tspan55">Backward
 </tspan></tspan><tspan
          x="357.81942"
          y="-52.383323"
-         id="tspan28"><tspan
+         id="tspan58"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica"
-           id="tspan27">propagation</tspan></tspan></text>
+           id="tspan57">propagation</tspan></tspan></text>
     <text
        xml:space="preserve"
        transform="matrix(0.26458333,0,0,0.26458333,186.10473,-15.299907)"
@@ -3758,17 +3764,17 @@
        style="font-weight:bold;font-size:26.6667px;line-height:1;font-family:Helvetica;-inkscape-font-specification:'Helvetica Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect2-4-6);display:inline;fill:#868686;fill-opacity:1;stroke:none;stroke-width:1.37953;stroke-dasharray:none"
        x="77.179688"
        y="0"><tspan
-         x="385.99899"
+         x="382.29456"
          y="-69.368371"
-         id="tspan30"><tspan
+         id="tspan60"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica"
-           id="tspan29">Loss
+           id="tspan59">Loss
 </tspan></tspan><tspan
          x="367.46381"
          y="-42.701669"
-         id="tspan32"><tspan
+         id="tspan62"><tspan
            style="font-weight:normal;-inkscape-font-specification:Helvetica"
-           id="tspan31">function</tspan></tspan></text>
+           id="tspan61">function</tspan></tspan></text>
     <path
        style="fill:none;fill-opacity:1;stroke:#000000;stroke-width:0.365;stroke-dasharray:none;stroke-opacity:1"
        d="m 52.605169,97.130056 c 0,13.622264 89.127761,0.137533 99.858081,13.350294 10.75566,-13.243974 90.94881,0.01 90.94881,-12.492935"
@@ -3802,7 +3808,7 @@
        style="font-weight:bold;font-size:18.6667px;line-height:1.1;font-family:Arial;-inkscape-font-specification:'Arial Bold';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect45-6);display:inline;fill:#ff0d0d;fill-opacity:1;stroke:none;stroke-width:2.13543;stroke-dasharray:8.54173, 2.13543;stroke-dashoffset:0;stroke-opacity:1"><tspan
          x="488.73005"
          y="312.45317"
-         id="tspan33">Count Data</tspan></text>
+         id="tspan63">Count Data</tspan></text>
     <path
        style="fill:none;fill-opacity:1;stroke:#ff0d0d;stroke-width:0.365001;stroke-dasharray:1.46, 0.365001;stroke-dashoffset:0;stroke-opacity:1;marker-end:url(#marker57)"
        d="m 302.14154,17.814875 c 0,0 19.64785,4.939308 19.64785,19.647841"
@@ -4119,6 +4125,16 @@
         </g>
       </g>
     </g>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,32.345831,-25.827755)"
+       id="text1-2"
+       style="font-size:18.6667px;line-height:1;font-family:'Myriad Pro';-inkscape-font-specification:'Myriad Pro';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect1-1);display:inline;fill:#808080;fill-opacity:0.129482;stroke-width:4.15748"><tspan
+         x="56.383784"
+         y="-34.683568"
+         id="tspan65"><tspan
+           style="fill:#000000;fill-opacity:1"
+           id="tspan64">Figure 2</tspan></tspan></text>
   </g>
   <g
      inkscape:label=""

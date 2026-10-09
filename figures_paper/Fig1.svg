@@ -7,7 +7,7 @@
    viewBox="0 0 181.56913 118.42192"
    version="1.1"
    id="svg1"
-   inkscape:version="1.4 (86a8ad7, 2024-10-11)"
+   inkscape:version="1.4.4 (dcaf3e7, 2026-05-05)"
    sodipodi:docname="Fig1.svg"
    inkscape:export-filename="Fig1.pdf"
    inkscape:export-xdpi="300"
@@ -27,8 +27,8 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      inkscape:zoom="1.4378367"
-     inkscape:cx="399.55858"
-     inkscape:cy="284.10736"
+     inkscape:cx="253.50584"
+     inkscape:cy="166.56968"
      inkscape:window-width="1920"
      inkscape:window-height="1111"
      inkscape:window-x="-9"
@@ -37,6 +37,12 @@
      inkscape:current-layer="layer1" />
   <defs
      id="defs1">
+    <rect
+       x="30.601528"
+       y="-48.684249"
+       width="114.06024"
+       height="25.733103"
+       id="rect1" />
     <marker
        style="overflow:visible"
        id="Triangle"
@@ -2596,5 +2602,15 @@
         </g>
       </g>
     </g>
+    <text
+       xml:space="preserve"
+       transform="matrix(0.26458333,0,0,0.26458333,-41.160475,71.008856)"
+       id="text1"
+       style="font-size:18.6667px;line-height:1;font-family:'Myriad Pro';-inkscape-font-specification:'Myriad Pro';text-align:center;writing-mode:lr-tb;direction:ltr;white-space:pre;shape-inside:url(#rect1);fill:#808080;fill-opacity:0.129482;stroke-width:4.15748"><tspan
+         x="56.383784"
+         y="-34.683568"
+         id="tspan5"><tspan
+           style="fill:#000000;fill-opacity:1"
+           id="tspan4">Figure 1</tspan></tspan></text>
   </g>
 </svg>
