@@ -116,4 +116,3 @@ dependencies:
       - urllib3==2.5.0
       - werkzeug==3.1.3
       - xarray==2025.9.0
-prefix: C:\Users\leroy.64\.conda\envs\py3_12_11
